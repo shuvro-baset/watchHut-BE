@@ -46,6 +46,8 @@ async function run() {
         const database = client.db('watchHut');
         const appointmentsCollection = database.collection('appointments');
         const usersCollection = database.collection('users');
+        const watchCollection = database.collection('watches');
+
 
         
         
@@ -70,6 +72,7 @@ async function run() {
             res.json(result);
         });
 
+        // new user created/updated (for google sign-in)
         app.put('/users', async (req, res) => {
             const user = req.body;
             const filter = { email: user.email };
@@ -80,14 +83,6 @@ async function run() {
         });
 
         // make admin 
-        // app.put('/users/admin', async (req, res) => {
-        //     const user = req.body;
-        //     const filter = { email: user.email };
-        //     const updateDoc = { $set: { role: 'admin' } };
-        //     const result = await usersCollection.updateOne(filter, updateDoc);
-        //     console.log("make admin: ", result);
-        //     res.json(result);
-        // })
         app.put('/users/admin', verifyToken, async (req, res) => {
             const user = req.body;
             const requester = req.decodedEmail;
@@ -105,6 +100,26 @@ async function run() {
             }
 
         })
+
+        // create new watch products 
+        app.post('/add-watch', async (req, res) => {
+            console.log("lakdsjf");
+
+            const watch = req.body;
+            const result = await watchCollection.insertOne(watch);
+            console.log(result);
+            res.json(result);
+        });
+
+        // get watch products
+        // create new watch products 
+        app.get('/watches', async (req, res) => {
+            
+            const cursor = watchCollection.find({});
+            const watches = await cursor.toArray();
+            console.log(watches);
+            res.json(watches);
+        });
 
     }
     finally {
