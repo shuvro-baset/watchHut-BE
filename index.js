@@ -54,6 +54,15 @@ async function run() {
             res.json(result);
         });
 
+        // make admin 
+        app.put('/users/admin', async (req, res) => {
+            const user = req.body;
+            const filter = { email: user.email };
+            const updateDoc = { $set: { role: 'admin' } };
+            const result = await usersCollection.updateOne(filter, updateDoc);
+            console.log("make admin: ", result);
+            res.json(result);
+        })
         // app.put('/users/admin', verifyToken, async (req, res) => {
         //     const user = req.body;
         //     const requester = req.decodedEmail;
