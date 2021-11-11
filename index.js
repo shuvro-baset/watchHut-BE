@@ -5,6 +5,7 @@ const admin = require("firebase-admin");
 
 // const admin = require("firebase-admin");
 require('dotenv').config();
+const ObjectId = require('mongodb').ObjectId;
 const { MongoClient } = require('mongodb');
 
 const port = process.env.PORT || 5000;
@@ -44,16 +45,14 @@ async function run() {
     try {
         await client.connect();
         const database = client.db('watchHut');
-        const appointmentsCollection = database.collection('appointments');
         const usersCollection = database.collection('users');
         const watchCollection = database.collection('watches');
-
-
-        
+        const orderCollection = database.collection('orders')
         
 
         // getting admin user
         app.get('/users/:email', async (req, res) => {
+            console.log("admin: ", req.params.email);
             const email = req.params.email;
             const query = { email: email };
             const user = await usersCollection.findOne(query);
@@ -117,10 +116,25 @@ async function run() {
             
             const cursor = watchCollection.find({});
             const watches = await cursor.toArray();
-            console.log(watches);
             res.json(watches);
         });
 
+        // GET API for single watch information 
+        app.get('/watch/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const watch = await watchCollection.findOne(query);
+            res.send(watch);
+        });
+
+        // POST API for order watch
+        app.post('/order-watch', async (req, res) => {
+            const watchOrderData = req.body;
+            const order = await orderCollection.insertOne(watchOrderData);
+            console.log('load watch with id: ', res);
+            res.send(order);
+        })
+  
     }
     finally {
         // await client.close();
