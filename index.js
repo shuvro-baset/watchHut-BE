@@ -129,6 +129,15 @@ async function run() {
             res.send(watch);
         });
 
+        // DELETE API
+        app.delete('/watch/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const query = { _id: ObjectId(id) };
+            const result = await watchCollection.deleteOne(query);
+            res.json(result);
+        })
+
         // POST API for order watch
         app.post('/order-watch', async (req, res) => {
             const watchOrderData = req.body;
