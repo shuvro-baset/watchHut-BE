@@ -122,6 +122,7 @@ async function run() {
         // GET API for single watch information 
         app.get('/watch/:id', async (req, res) => {
             const id = req.params.id;
+            console.log(req);
             const query = { _id: ObjectId(id) };
             const watch = await watchCollection.findOne(query);
             res.send(watch);
@@ -134,7 +135,23 @@ async function run() {
             console.log('load watch with id: ', res);
             res.send(order);
         })
+
+        // GET API for single users orders
+        app.get('/my-orders', async (req, res) => {
+            const cursor = orderCollection.find({})
+            const orders = await cursor.toArray();
+            res.send(orders)
+    
+        })
   
+        // DELETE API
+        app.delete('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.deleteOne(query);
+            res.json(result);
+        })
     }
     finally {
         // await client.close();
