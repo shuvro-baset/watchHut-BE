@@ -137,7 +137,7 @@ async function run() {
         })
 
         // GET API for single users orders
-        app.get('/my-orders', async (req, res) => {
+        app.get('/orders', async (req, res) => {
             const cursor = orderCollection.find({})
             const orders = await cursor.toArray();
             res.send(orders)
@@ -152,6 +152,23 @@ async function run() {
             const result = await orderCollection.deleteOne(query);
             res.json(result);
         })
+
+        // UPDATE  API
+        app.put('/update-status/:id', async (req, res) => {
+            const id = req.params.id;
+            // console.log('updating.... ', id)
+            const status = req.body.status;
+            const query = { _id: ObjectId(id) }; // filtering user's object
+            const options = { upsert: true }; // update and insert
+    
+            const updateDoc = { // set data
+                $set: {
+                    status: status
+                },
+            };
+            const result = await orderCollection.updateOne(query, updateDoc, options) // updating 
+            res.json(result) // send response to frontend
+        });
     }
     finally {
         // await client.close();
