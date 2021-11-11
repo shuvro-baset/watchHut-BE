@@ -47,7 +47,8 @@ async function run() {
         const database = client.db('watchHut');
         const usersCollection = database.collection('users');
         const watchCollection = database.collection('watches');
-        const orderCollection = database.collection('orders')
+        const orderCollection = database.collection('orders');
+        const reviewCollection = database.collection('reviews');
         
 
         // getting admin user
@@ -169,6 +170,22 @@ async function run() {
             const result = await orderCollection.updateOne(query, updateDoc, options) // updating 
             res.json(result) // send response to frontend
         });
+
+        // POST API for order watch
+        app.post('/review', async (req, res) => {
+            const reviewData = req.body;
+            const review = await reviewCollection.insertOne(reviewData);
+            console.log('load watch with id: ', res);
+            res.send(review);
+        })
+
+        // GET API for single users orders
+        app.get('/all-review', async (req, res) => {
+            const cursor = reviewCollection.find({})
+            const reviews = await cursor.toArray();
+            res.send(reviews)
+    
+        })
     }
     finally {
         // await client.close();
