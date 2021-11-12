@@ -3,7 +3,6 @@ const app = express()
 const cors = require('cors');
 const admin = require("firebase-admin");
 
-// const admin = require("firebase-admin");
 require('dotenv').config();
 const ObjectId = require('mongodb').ObjectId;
 const { MongoClient } = require('mongodb');
@@ -52,7 +51,7 @@ async function run() {
         
 
         // getting admin user
-        app.get('/users/:email', async (req, res) => {
+        app.get('/user/:email', async (req, res) => {
             console.log("admin: ", req.params.email);
             const email = req.params.email;
             const query = { email: email };
@@ -112,9 +111,7 @@ async function run() {
         });
 
         // get watch products
-        // create new watch products 
         app.get('/watches', async (req, res) => {
-            
             const cursor = watchCollection.find({});
             const watches = await cursor.toArray();
             res.json(watches);
@@ -195,6 +192,13 @@ async function run() {
             res.send(reviews)
     
         })
+
+        // get watch products
+        app.get('/all-users', async (req, res) => {
+            const cursor = usersCollection.find({});
+            const users = await cursor.toArray();
+            res.json(users);
+        });
     }
     finally {
         // await client.close();
