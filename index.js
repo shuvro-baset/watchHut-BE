@@ -3,15 +3,19 @@ const app = express()
 const cors = require('cors');
 const admin = require("firebase-admin");
 
+// env
 require('dotenv').config();
 const ObjectId = require('mongodb').ObjectId;
+// mongoDb
 const { MongoClient } = require('mongodb');
 
+// port address
 const port = process.env.PORT || 5000;
 
 // firebase token service account
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
+// firebase admin app initialize
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
@@ -47,8 +51,6 @@ async function run() {
         const watchCollection = database.collection('watches');
         const orderCollection = database.collection('orders');
         const reviewCollection = database.collection('reviews');
-        
-
         
 
         // create/add new user 
@@ -164,18 +166,17 @@ async function run() {
         // UPDATE  API for order status
         app.put('/update-status/:id', async (req, res) => {
             const id = req.params.id;
-            // console.log('updating.... ', id)
             const status = req.body.status;
-            const query = { _id: ObjectId(id) }; // filtering user's object
-            const options = { upsert: true }; // update and insert
+            const query = { _id: ObjectId(id) }; 
+            const options = { upsert: true }; 
     
-            const updateDoc = { // set data
+            const updateDoc = { 
                 $set: {
                     status: status
                 },
             };
-            const result = await orderCollection.updateOne(query, updateDoc, options) // updating 
-            res.json(result) // send response to frontend
+            const result = await orderCollection.updateOne(query, updateDoc, options) 
+            res.json(result) 
         });
 
         // POST API for give a review
