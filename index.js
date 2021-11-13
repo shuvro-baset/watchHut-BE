@@ -9,8 +9,7 @@ const { MongoClient } = require('mongodb');
 
 const port = process.env.PORT || 5000;
 
-
-
+// firebase token service account
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
@@ -20,22 +19,20 @@ admin.initializeApp({
 app.use(cors());
 app.use(express.json());
 
+// database connection
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.oh18i.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
-
+// verifyToken function
 async function verifyToken(req, res, next) {
     if (req.headers?.authorization?.startsWith('Bearer ')) {
         const token = req.headers.authorization.split(' ')[1];
-
         try {
             const decodedUser = await admin.auth().verifyIdToken(token);
             req.decodedEmail = decodedUser.email;
         }
         catch {
-
         }
-
     }
     next();
 }
@@ -43,27 +40,18 @@ async function verifyToken(req, res, next) {
 async function run() {
     try {
         await client.connect();
+        // database name
         const database = client.db('watchHut');
+        // database collections
         const usersCollection = database.collection('users');
         const watchCollection = database.collection('watches');
         const orderCollection = database.collection('orders');
         const reviewCollection = database.collection('reviews');
         
 
-        // getting admin user
-        app.get('/user/:email', async (req, res) => {
-            console.log("admin: ", req.params.email);
-            const email = req.params.email;
-            const query = { email: email };
-            const user = await usersCollection.findOne(query);
-            let isAdmin = false;
-            if (user?.role === 'admin') {
-                isAdmin = true;
-            }
-            res.json({ admin: isAdmin });
-        })
+        
 
-        // create and add new user 
+        // create/add new user 
         app.post('/users', async (req, res) => {
             const user = req.body;
             const result = await usersCollection.insertOne(user);
@@ -100,6 +88,19 @@ async function run() {
 
         })
 
+        // getting admin user
+        app.get('/user/:email', async (req, res) => {
+            console.log("admin: ", req.params.email);
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            let isAdmin = false;
+            if (user?.role === 'admin') {
+                isAdmin = true;
+            }
+            res.json({ admin: isAdmin });
+        })
+
         // create new watch products 
         app.post('/add-watch', async (req, res) => {
             console.log("lakdsjf");
@@ -126,7 +127,7 @@ async function run() {
             res.send(watch);
         });
 
-        // DELETE API
+        // DELETE API for products delete
         app.delete('/watch/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id);
@@ -143,7 +144,7 @@ async function run() {
             res.send(order);
         })
 
-        // GET API for single users orders
+        // GET API for users orders
         app.get('/orders', async (req, res) => {
             const cursor = orderCollection.find({})
             const orders = await cursor.toArray();
@@ -151,7 +152,7 @@ async function run() {
     
         })
   
-        // DELETE API
+        // DELETE API for users order
         app.delete('/orders/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id);
@@ -160,7 +161,7 @@ async function run() {
             res.json(result);
         })
 
-        // UPDATE  API
+        // UPDATE  API for order status
         app.put('/update-status/:id', async (req, res) => {
             const id = req.params.id;
             // console.log('updating.... ', id)
@@ -177,7 +178,7 @@ async function run() {
             res.json(result) // send response to frontend
         });
 
-        // POST API for order watch
+        // POST API for give a review
         app.post('/review', async (req, res) => {
             const reviewData = req.body;
             const review = await reviewCollection.insertOne(reviewData);
@@ -185,7 +186,7 @@ async function run() {
             res.send(review);
         })
 
-        // GET API for single users orders
+        // GET API for reviews
         app.get('/all-review', async (req, res) => {
             const cursor = reviewCollection.find({})
             const reviews = await cursor.toArray();
@@ -193,7 +194,7 @@ async function run() {
     
         })
 
-        // get watch products
+        // get all users
         app.get('/all-users', async (req, res) => {
             const cursor = usersCollection.find({});
             const users = await cursor.toArray();
