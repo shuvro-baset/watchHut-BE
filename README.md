@@ -1,6 +1,6 @@
 # SP WatchHut
 
-[Live Site Link](https://WatchHut-21945.web.app/).
+[Live Site Link](https://spwatchhut.web.app/).
 
 * SP WatchHut is a online shopping platform. Here you will find different brands smart watches. We always try to provide all kind of smart watches.
 * You can see the watch details and price.
